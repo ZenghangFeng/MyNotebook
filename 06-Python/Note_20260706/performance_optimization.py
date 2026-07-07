@@ -68,3 +68,4 @@ print('for loop\t', timeit.timeit(for_loop, number=1))
 # while 循环的“额外工作”：在每一轮循环中，while都需要在Python层面显式地执行边界检查（i < n）和变量自增（i += 1）。这两步都是纯Python代码，执行速度相对较慢。
 # for 循环的“C语言加速”：for i in range(n) 循环利用了Python的内置机制。迭代器range(n)的创建和迭代过程，大部分是由C语言在底层完成的。C语言的执行速度远快于Python。此外，for循环会自动从迭代器中获取下一个值，无需在Python代码中手动管理索引和边界。
 
+
