@@ -1,16 +1,19 @@
 import math
 import time
 
-
-start = time.perf_counter()
 """
+##################################################################
+# 全局变量和局部变量的性能差异
+##################################################################
+start = time.perf_counter()
+
 # 全局变量 =========================================================
 size = 10000
 for x in range(size):
     for y in range(size):
         z = math.sqrt(x) + math.sqrt(y)
 # 执行耗时: 14.1147 秒
-"""
+
 # 局部变量 =========================================================
 def main():  # 定义到函数中，以减少全部变量使用
     size = 10000
@@ -32,4 +35,35 @@ main()
 
 end = time.perf_counter()
 print(f"执行耗时: {end - start:.4f} 秒")
+"""
 
+
+
+##################################################################
+# for循环和while循环的性能差异
+##################################################################
+import timeit
+
+def while_loop(n=100_000_000):
+    i = 0
+    s = 0
+    while i < n:
+        s += i
+        i += 1
+    return s
+
+def for_loop(n=100_000_000):
+    s = 0
+    for i in range(n):
+        s += i
+    return s
+
+# 每个循环只运行一次来测量总耗时
+print('while loop\t', timeit.timeit(while_loop, number=1))
+print('for loop\t', timeit.timeit(for_loop, number=1))
+
+# while loop	 3.8094096000422724
+# for loop	 3.07527560001472
+# 结论：for循环更块
+# while 循环的“额外工作”：在每一轮循环中，while都需要在Python层面显式地执行边界检查（i < n）和变量自增（i += 1）。这两步都是纯Python代码，执行速度相对较慢。
+# for 循环的“C语言加速”：for i in range(n) 循环利用了Python的内置机制。迭代器range(n)的创建和迭代过程，大部分是由C语言在底层完成的。C语言的执行速度远快于Python。此外，for循环会自动从迭代器中获取下一个值，无需在Python代码中手动管理索引和边界。
