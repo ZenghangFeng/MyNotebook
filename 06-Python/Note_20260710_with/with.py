@@ -30,3 +30,20 @@ class ManagedFile:
 with ManagedFile('test.txt', 'w') as f:
     f.write('Hello, world! ' + time.strftime("%Y-%m-%d %H:%M:%S %Z", time.localtime()))
 # 文件自动关闭
+
+
+##########################################################################################
+# Python 标准库 contextlib 提供了更方便的方式来创建上下文管理器。
+##########################################################################################
+from contextlib import contextmanager
+
+@contextmanager
+def managed_file(filename, mode='r'):
+    f = open(filename, mode)
+    try:
+        yield f          # 进入 with 块时返回 f
+    finally:
+        f.close()        # 退出 with 块时执行清理
+
+with managed_file('test.txt', 'r') as f:
+    data_new = f.read()
