@@ -9,8 +9,8 @@ from sklearn.linear_model import LassoCV
 # 算法核心实现代码
 # ==========================================================================================
 def manual_dml_crossfit(X, D, Y,
-                        model_y,  # 用于拟合 Y ~ X 的 ML 模型（实例）
-                        model_t,  # 用于拟合 D ~ X 的 ML 模型（实例）
+                        model_y,
+                        model_t,
                         n_folds=5,
                         random_state=42):
     """
@@ -20,8 +20,8 @@ def manual_dml_crossfit(X, D, Y,
     - X: (n_samples, n_features) 高维协变量
     - D: (n_samples,) 处理变量 (Treatment)
     - Y: (n_samples,) 结果变量 (Outcome)
-    - model_y: sklearn风格的回归器实例 (如 RandomForestRegressor())
-    - model_t: sklearn风格的回归器实例 (如 LassoCV())
+    - model_y: 用于拟合 Y ~ X 的 ML 模型（实例）,sklearn风格的回归器实例 (如 RandomForestRegressor())
+    - model_t: 用于拟合 D ~ X 的 ML 模型（实例）,sklearn风格的回归器实例 (如 LassoCV())
     - n_folds: 交叉拟合折数
     - random_state: 随机种子
 
