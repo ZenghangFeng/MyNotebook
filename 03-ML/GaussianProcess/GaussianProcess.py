@@ -4,6 +4,9 @@ from sklearn.datasets import load_iris   # 仅用于加载数据，非算法库
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
+# 参考：https://distill.pub/2019/visual-exploration-gaussian-processes/
+
+
 # ================== 高斯过程回归（手写实现）==================
 class GaussianProcessRegressor:
     def __init__(self, kernel=None, noise=1e-6):
