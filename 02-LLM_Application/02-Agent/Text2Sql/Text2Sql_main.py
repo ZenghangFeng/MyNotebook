@@ -20,7 +20,7 @@ my_db.db_init()
 # 2. 创建Text2Sql Agent 实例
 ############################################################
 # 创建大模型对象 ==============================================
-api_key="sk-f66788fe1fce45099693f26b56ea89db"
+api_key="your api key"
 base_url="https://api.deepseek.com"
 client = OpenAI(api_key=api_key, base_url=base_url)
 
