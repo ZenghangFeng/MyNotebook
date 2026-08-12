@@ -7,8 +7,9 @@ from sklearn.neighbors import KNeighborsRegressor
 df = pd.read_csv('data/management_training.csv')
 
 # 单变量线性回归
-model_linear = smf.ols("engagement_score ~ intervention", data=df).fit()
-print(model_linear.summary())
+linear_model = smf.ols("engagement_score ~ intervention", data=df).fit()
+print(linear_model.summary())
+print('-'*40 + '分割线' + '-'*40)
 
 # 多变量线性回归
 model = smf.ols("""engagement_score ~ intervention 
@@ -16,6 +17,7 @@ model = smf.ols("""engagement_score ~ intervention
         + n_of_reports + C(gender) + C(role)""", data=df).fit()
 print("ATE:", model.params["intervention"])
 print("95% CI:", model.conf_int().loc["intervention", :].values.T)
+print('-'*40 + '分割线' + '-'*40)
 
 
 # ==========================================================================================
@@ -52,3 +54,11 @@ predicted = pd.concat([
 ])
 
 # predicted.head()
+
+
+# ==========================================================================================
+# 计算平均处理效应
+# ==========================================================================================
+ATE = np.mean((predicted[Y] - predicted["match"]) * predicted[T]
+               + (predicted["match"] - predicted[Y]) * (1 - predicted[T]))
+print("ATE:", ATE)
