@@ -1,64 +1,55 @@
-import pandas as pd
 import numpy as np
-import statsmodels.formula.api as smf
-from sklearn.neighbors import KNeighborsRegressor
+import pandas as pd
+import matplotlib.pyplot as plt
+from causal_curve import GPS_Classifier
+from sklearn.datasets import load_iris, load_wine, load_breast_cancer
 
+# 参考链接：https://causal-curve.readthedocs.io/en/latest/GPS_Classifier.html
 
-df = pd.read_csv('data/management_training.csv')
+# ==================== 1. 加载并准备数据 ====================
+breast_cancer = load_breast_cancer()
+df_bc = pd.DataFrame(breast_cancer.data, columns=breast_cancer.feature_names)
+df_bc['target'] = breast_cancer.target
 
-# 单变量线性回归
-linear_model = smf.ols("engagement_score ~ intervention", data=df).fit()
-print(linear_model.summary())
-print('-'*40 + '分割线' + '-'*40)
+# -------------------- 2. 初始化并训练 GPS_Classifier --------------------
+gps = GPS_Classifier(treatment_grid_num=200, random_seed=42)
 
-# 多变量线性回归
-model = smf.ols("""engagement_score ~ intervention 
-        + tenure + last_engagement_score + department_score
-        + n_of_reports + C(gender) + C(role)""", data=df).fit()
-print("ATE:", model.params["intervention"])
-print("95% CI:", model.conf_int().loc["intervention", :].values.T)
-print('-'*40 + '分割线' + '-'*40)
+gps.fit(T = df_bc['worst area'], X = df_bc[[c for c in df_bc.columns if c not in ['worst area', 'target']]], y = df_bc['target'])
+gps_results = gps.calculate_CDRC(0.95)
 
+# -------------------- 3. 可视化 --------------------
+treatment_grid = gps_results['Treatment']
+point_estimate = gps_results['Causal_Odds_Ratio']
+lower_bound = gps_results['Lower_CI']
+upper_bound = gps_results['Upper_CI']
 
-# ==========================================================================================
-# 倾向评分
-# ==========================================================================================
-ps_model = smf.logit("""intervention ~ 
-        tenure + last_engagement_score + department_score
-        + C(n_of_reports) + C(gender) + C(role)""", data=df).fit(disp=0)
+plt.figure(figsize=(10, 6))
 
-data_ps = df.assign(
-    propensity_score=ps_model.predict(df),
-)
-# data_ps[["intervention", "engagement_score", "propensity_score"]].head()
+plt.plot(treatment_grid,
+         point_estimate,
+         color='blue',
+         label='Causal Effect Estimate (Probability)')
 
+plt.fill_between(treatment_grid,
+                 lower_bound,
+                 upper_bound,
+                 color='blue',
+                 alpha=0.2,
+                 label='95% Confidence Interval')
 
-# ==========================================================================================
-# 倾向评分匹配
-# ==========================================================================================
-T = "intervention"
-X = "propensity_score"
-Y = "engagement_score"
+plt.xlabel('Treatment Level')
+plt.ylabel('Potential Outcome Probability')
+plt.title('Causal Dose-Response Curve (Binary Outcome)')
+plt.legend()
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.show()
 
-treated = data_ps.query(f"{T}==1")
-untreated = data_ps.query(f"{T}==0")
+"""
+# -------------------- 5. 特定处理值下的因果效应推断 --------------------
+treatment_point = np.array([0.5])
+point_effect = gps.point_estimate(treatment_point)
+point_effect_interval = gps.point_estimate_interval(treatment_point, ci=0.95)
 
-mt0 = KNeighborsRegressor(n_neighbors=1).fit(untreated[[X]],untreated[Y])
-mt1 = KNeighborsRegressor(n_neighbors=1).fit(treated[[X]], treated[Y])
-
-predicted = pd.concat([
-    # find matches for the treated looking at the untreated knn model
-    treated.assign(match=mt0.predict(treated[[X]])),
-    # find matches for the untreated looking at the treated knn model
-    untreated.assign(match=mt1.predict(untreated[[X]]))
-])
-
-# predicted.head()
-
-
-# ==========================================================================================
-# 计算平均处理效应
-# ==========================================================================================
-ATE = np.mean((predicted[Y] - predicted["match"]) * predicted[T]
-               + (predicted["match"] - predicted[Y]) * (1 - predicted[T]))
-print("ATE:", ATE)
+print(f"\n当 Treatment = 0.5 时，估计的潜在结果概率为: {point_effect[0]:.4f}")
+print(f"其 95% 置信区间为: [{point_effect_interval[0][0]:.4f}, {point_effect_interval[0][1]:.4f}]")
+"""
