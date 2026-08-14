@@ -14,7 +14,9 @@ df_bc['target'] = breast_cancer.target
 # -------------------- 2. 初始化并训练 GPS_Classifier --------------------
 gps = GPS_Classifier(treatment_grid_num=200, random_seed=42)
 
-gps.fit(T = df_bc['worst area'], X = df_bc[[c for c in df_bc.columns if c not in ['worst area', 'target']]], y = df_bc['target'])
+# t = 'mean concave points'
+t = 'worst texture'
+gps.fit(T = df_bc[t], X = df_bc[[c for c in df_bc.columns if c not in [t, 'target']]], y = df_bc['target'])
 gps_results = gps.calculate_CDRC(0.95)
 
 # -------------------- 3. 可视化 --------------------

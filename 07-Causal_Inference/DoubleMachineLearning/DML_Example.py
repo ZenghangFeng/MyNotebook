@@ -13,9 +13,11 @@ breast_cancer = load_breast_cancer()
 df_bc = pd.DataFrame(breast_cancer.data, columns=breast_cancer.feature_names)
 df_bc['target'] = breast_cancer.target
 
-T = df_bc['worst area']
+# t = 'mean concave points'
+t = 'worst texture'
+T = df_bc[t]
 Y = df_bc['target']
-X = df_bc.drop(['worst area', 'target'], axis=1)
+X = df_bc.drop([t, 'target'], axis=1)
 
 X_train, X_test, T_train, T_test, Y_train, Y_test = train_test_split(
     X, T, Y, test_size=0.3, random_state=42
