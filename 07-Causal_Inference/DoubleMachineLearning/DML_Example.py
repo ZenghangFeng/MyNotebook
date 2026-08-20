@@ -58,7 +58,7 @@ print(f"Average Treatment Effect (ATE): {average_treatment_effect}")
 ate_summary = forest_dml.ate_inference(X_test)
 print(ate_summary)  # 会显示效应值、标准误、z值、p值和置信区间[reference:14]
 
-# 获取每个样本的CATE估计值
+# 3. 获取每个样本的CATE估计值
 cate_estimates = forest_dml.effect(X_test)
 plt.figure(figsize=(10, 6))
 sns.histplot(cate_estimates, kde=True)
@@ -67,11 +67,11 @@ plt.xlabel('Estimated Treatment Effect')
 plt.ylabel('Frequency')
 plt.show()
 
-# 获取CATE的推断结果（包含标准误和置信区间）
+# 4. 获取CATE的推断结果（包含标准误和置信区间）
 cate_inference = forest_dml.effect_inference(X_test)
 # cate_inference 包含了 point_estimate, stderr, z_test, p_value, conf_int 等属性
 
-# 获取特征重要性
+# 5. 获取特征重要性
 importances = forest_dml.feature_importances_
 feature_names = forest_dml.cate_feature_names()
 indices = np.argsort(importances)[::-1]
@@ -82,8 +82,7 @@ plt.xticks(range(len(importances)), np.array(feature_names)[indices], rotation=9
 plt.tight_layout()
 plt.show()
 
-
-# 个体归因：可解释性决策树
+# 6. 个体归因：可解释性决策树
 # 1. 初始化解释器
 intrp = SingleTreeCateInterpreter(include_model_uncertainty=True,
                                   max_depth=3,          # 限制树的深度，保证可读性
@@ -94,3 +93,4 @@ intrp.interpret(forest_dml, X_test)
 plt.figure(figsize=(25, 10))
 intrp.plot(feature_names=feature_names, fontsize=12)
 plt.show()
+#
