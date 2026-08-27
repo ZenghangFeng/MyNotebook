@@ -2,6 +2,8 @@ import base64
 import time
 from io import BytesIO
 import numpy as np
+import xgboost
+import graphviz
 import pandas as pd
 import shap
 from matplotlib import pyplot as plt
@@ -89,7 +91,10 @@ model = XGBClassifier()
 model.load_model(model_path)
 explainer = shap.TreeExplainer(model)
 shap_values = explainer.shap_values(x)
+# xgboost.plot_tree(model, tree_idx=0)  # num_trees=0 表示绘制第一棵树
+# plt.show()
 
+"""
 fontsize = 12
 labelpad = 10
 shap.summary_plot(shap_values, x, plot_type="bar", max_display=10, show=False)
@@ -113,7 +118,7 @@ plt.ylabel(ylabel="SHAP Value for " + col, fontsize=fontsize)
 plt.title(label=pic_name, pad=5, fontsize=fontsize)
 plt.show()
 
-"""
+
 fig = plt.gcf()
 plt.xticks(fontsize=fontsize)
 plt.yticks(fontsize=fontsize)
